@@ -16,7 +16,7 @@ class Usuario extends BaseDatos {
         $this->usNombre = "";
         $this->usPass = "";
         $this->usMail = "";
-        $this->usDeshabilitado = "";
+        $this->usDeshabilitado = null;
         $this->mensajeOperacion = "";
     }
 
@@ -25,9 +25,11 @@ class Usuario extends BaseDatos {
         $this->setUsNombre($usnombre);
         $this->setUsPass($uspass);
         $this->setUsMail($usmail);
+        /*
         if($usdeshabilitado = null){
         $usdeshabilitado = "0000-00-00 00:00:00";
         }
+        */
         $this->setUsDeshabilitado($usdeshabilitado);
     }
 
@@ -185,6 +187,32 @@ class Usuario extends BaseDatos {
         }
         return $arreglo;
     }
+
+    public function listar2($parametro = "") {
+        $arreglo = array();
+        $sql = "SELECT * FROM usuario WHERE usdeshabilitado IS NULL"; // Filtrar solo usuarios habilitados
+        if ($parametro != "") {
+            $sql .= ' AND ' . $parametro; // Agregar condición adicional si se proporciona
+        }
+        if ($this->Iniciar()) {
+            $res = $this->Ejecutar($sql);
+            if($res > -1) {
+                if($res > 0) {
+                    while ($row = $this->Registro()) {
+                        $obj = new Usuario();
+                        $obj->setIdUsuario($row['idusuario']);
+                        $obj->cargar(); // Cargar los datos del usuario
+                        array_push($arreglo, $obj);
+                    }
+                }
+            }
+            else {
+                $this->setMensajeOperacion("Usuario->listar: ".$this->getError());
+            }
+        }
+        return $arreglo;
+    }
+    
 
     /**
      * Verifica si la clave proporcionada coincide con la clave almacenada.

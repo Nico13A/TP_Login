@@ -37,7 +37,7 @@ class Session {
         $param['usdeshabilitado']=null; // Aseguramos que el usuario no esté deshabilitado
 
         // Buscar el usuario por nombre
-        $resultado = $obj->buscar($param);
+        $resultado = $obj->buscarHabilitados($param);
         if (count($resultado) > 0) {
             $usuario = $resultado[0];
             // Verificar la contraseña
