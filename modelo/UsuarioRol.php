@@ -130,17 +130,11 @@ class UsuarioRol extends BaseDatos {
             if ($res > -1) {
                 if ($res > 0) {
                     while ($row = $this->Registro()) {
-                        $usuario = new Usuario();
-                        $usuario->setIdUsuario($row['idusuario']);
-                        $usuario->cargar();
-
-                        $rol = new Rol();
-                        $rol->setIdRol($row['idrol']);
-                        $rol->cargar();
-
-                        $usuarioRol = new UsuarioRol();
-                        $usuarioRol->setear($usuario, $rol);
-                        array_push($arreglo, $usuarioRol);
+                        $obj = new UsuarioRol();
+                        $obj->getObjUsuario()->setIdUsuario($row['idusuario']);
+                        $obj->getObjRol()->setIdRol($row['idrol']);
+                        $obj->cargar();
+                        array_push($arreglo, $obj);
                     }
                 }
             } else {

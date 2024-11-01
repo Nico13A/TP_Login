@@ -19,6 +19,11 @@ class ABMUsuario {
                 $resp = true;
             }
         }
+        if ($datos['accion'] == 'habilitar') {
+            if ($this->habilitacion($datos)) {
+                $resp = true;
+            }
+        }
         return $resp;
     }
 
@@ -113,6 +118,7 @@ class ABMUsuario {
      * @param array $param
      * @return array
      */
+    /*
     public function buscar($param) {
         $where = " true ";
         if ($param <> NULL) {
@@ -128,6 +134,37 @@ class ABMUsuario {
         $obj = new Usuario();
         $arreglo = $obj->listar($where);
         return $arreglo;
+    }*/
+
+    public function buscar($param){
+        $where = " true ";
+        if ($param<>NULL){
+            if  (isset($param['idusuario']))
+                $where.=" and idusuario =".$param['idusuario'];
+            if  (isset($param['usnombre']))
+                 $where.=" and usnombre ='".$param['usnombre']."'";
+            if  (isset($param['usmail']))
+                 $where.=" and usmail ='".$param['usmail']."'";
+            if  (isset($param['uspass']))
+                 $where.=" and uspass ='".$param['uspass']."'";
+            if  (isset($param['usdeshabilitado']))
+                 $where.=" and usdeshabilitado ='".$param['usdeshabilitado']."'";
+        }
+        $obj = new Usuario();
+        $arreglo = $obj->listar($where);
+        //echo "Van ".count($arreglo);
+        return $arreglo;
+    }
+
+    public function habilitacion($param) {
+        $resp = false;
+        if ($this->seteadosCamposClaves($param)) {
+            $objUsuario = $this->cargarObjeto($param);
+            if ($objUsuario != null && $objUsuario->habilitar()) {
+                $resp = true;
+            }
+        }
+        return $resp;
     }
 
 }

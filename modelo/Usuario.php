@@ -16,7 +16,7 @@ class Usuario extends BaseDatos {
         $this->usNombre = "";
         $this->usPass = "";
         $this->usMail = "";
-        $this->usDeshabilitado = null;
+        $this->usDeshabilitado = "";
         $this->mensajeOperacion = "";
     }
 
@@ -25,6 +25,9 @@ class Usuario extends BaseDatos {
         $this->setUsNombre($usnombre);
         $this->setUsPass($uspass);
         $this->setUsMail($usmail);
+        if($usdeshabilitado = null){
+        $usdeshabilitado = "0000-00-00 00:00:00";
+        }
         $this->setUsDeshabilitado($usdeshabilitado);
     }
 
@@ -96,7 +99,7 @@ class Usuario extends BaseDatos {
 
     public function cargar() {
         $resp = false;
-        $sql = "SELECT * FROM usuario WHERE idusuario = " . $this->getidusuario();
+        $sql = "SELECT * FROM usuario WHERE idusuario = " . $this->getIdUsuario();
         if ($this->Iniciar()) {
             $res = $this->Ejecutar($sql);
             if ($res >- 1) {
@@ -107,53 +110,53 @@ class Usuario extends BaseDatos {
                 }
             }
         } else {
-            $this->setmensajeoperacion("Usuario->cargar: " . $this->getError());
+            $this->setMensajeOperacion("Usuario->cargar: " . $this->getError());
         }
         return $resp;
     }
 
     public function insertar() {
         $resp = false;
-        $sql = "INSERT INTO usuario(usnombre, uspass, usmail, usdeshabilitado)  VALUES ('" . $this->getusnombre() . "','" . $this->getuspass() . "','".$this->getusmail() . "',".$this->getusdeshabilitado() . ");";
+        $sql = "INSERT INTO usuario(usnombre, uspass, usmail, usdeshabilitado)  VALUES ('" . $this->getUsNombre() . "','" . $this->getUsPass() . "','".$this->getUsMail() . "',".$this->getUsDeshabilitado() . ");";
         if ($this->Iniciar()) {
             if ($elid = $this->Ejecutar($sql)) {
-                $this->setidusuario($elid);
+                $this->setIdUsuario($elid);
                 $resp = true;
             } else {
-                $this->setmensajeoperacion("Usuario->insertar: " . $this->getError());
+                $this->setMensajeOperacion("Usuario->insertar: " . $this->getError());
             }
         } else {
-            $this->setmensajeoperacion("Usuario->insertar: " . $this->getError());
+            $this->setMensajeOperacion("Usuario->insertar: " . $this->getError());
         }
         return $resp;
     }
 
     public function modificar() {
         $resp = false;
-        $sql = "UPDATE usuario SET usnombre='" . $this->getusnombre() . "' ,uspass='" . $this->getuspass() . "',usmail='".$this->getusmail() . "' ,usdeshabilitado='" . $this->getusdeshabilitado() . "'  " . " WHERE idusuario=" . $this->getidusuario();
+        $sql = "UPDATE usuario SET usnombre='" . $this->getUsNombre() . "' ,uspass='" . $this->getUsPass() . "',usmail='".$this->getUsMail() . "' ,usdeshabilitado='" . $this->getUsDeshabilitado() . "'  " . " WHERE idusuario=" . $this->getIdUsuario();
         if ($this->Iniciar()) {
             if ($this->Ejecutar($sql)) {
                 $resp = true;
             } else {
-                $this->setmensajeoperacion("Usuario->modificar: " . $this->getError());
+                $this->setMensajeOperacion("Usuario->modificar: " . $this->getError());
             }
         } else {
-            $this->setmensajeoperacion("Usuario->modificar: " . $this->getError());
+            $this->setMensajeOperacion("Usuario->modificar: " . $this->getError());
         }
         return $resp;
     }
 
     public function eliminar() {
         $resp = false;
-        $sql = "DELETE FROM usuario WHERE idusuario=" . $this->getidusuario();
+        $sql = "UPDATE usuario SET usdeshabilitado = '".date("Y-m-d h:i:s a")."' WHERE idusuario = ".$this->getIdUsuario();
         if ($this->Iniciar()) {
             if ($this->Ejecutar($sql)) {
                 $resp = true;
             } else {
-                $this->setmensajeoperacion("Usuario->eliminar: " . $this->getError());
+                $this->setMensajeOperacion("Usuario->eliminar: " . $this->getError());
             }
         } else {
-            $this->setmensajeoperacion("Usuario->eliminar: " . $this->getError());
+            $this->setMensajeOperacion("Usuario->eliminar: " . $this->getError());
         }
         return $resp;
     }
@@ -177,11 +180,41 @@ class Usuario extends BaseDatos {
                 }
             }
             else {
-                $this->setmensajeoperacion("Usuario->listar: ".$this->getError());
+                $this->setMensajeOperacion("Usuario->listar: ".$this->getError());
             }
         }
         return $arreglo;
     }
+
+    /**
+     * Verifica si la clave proporcionada coincide con la clave almacenada.
+     * @param string $psw
+     * @return boolean
+     */
+    public function verificarClave($pswHash) {
+        return $this->getUsPass() == $pswHash;
+    }
+
+    public function habilitar() {
+        $resp = false;
+        // Verificar si el usuario está deshabilitado
+        if ($this->getUsDeshabilitado() != null) {
+            $sql = "UPDATE usuario SET usdeshabilitado = NULL WHERE idusuario = " . $this->getIdUsuario();
+            if ($this->Iniciar()) {
+                if ($this->Ejecutar($sql)) {
+                    $this->setUsDeshabilitado(null); // Actualizar el atributo del objeto
+                    $resp = true;
+                } else {
+                    $this->setMensajeOperacion("Usuario->habilitar: " . $this->getError());
+                }
+            } else {
+                $this->setMensajeOperacion("Usuario->habilitar: " . $this->getError());
+            }
+        } else {
+            $this->setMensajeOperacion("Usuario->habilitar: El usuario ya está habilitado.");
+        }
+        return $resp;
+    }    
 
 }
 

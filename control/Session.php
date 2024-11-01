@@ -3,12 +3,15 @@
 class Session {
 
     public function __construct() {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
     }
 
     /**
      * Actualiza las variables de sesión con los valores ingresados.
      */
+    /*
     public function iniciar($nombreUsuario, $psw) {
         $resp = false;
         $obj = new ABMUsuario();
@@ -21,6 +24,29 @@ class Session {
             $usuario = $resultado[0];
             $_SESSION['idusuario'] = $usuario->getIdUsuario();
             $resp = true;
+        } else {
+            $this->cerrar();
+        }
+        return $resp;
+    }
+    */
+    public function iniciar($nombreUsuario, $psw) {
+        $resp = false;
+        $obj = new ABMUsuario();
+        $param['usnombre'] = $nombreUsuario;
+        $param['usdeshabilitado']=null; // Aseguramos que el usuario no esté deshabilitado
+
+        // Buscar el usuario por nombre
+        $resultado = $obj->buscar($param);
+        if (count($resultado) > 0) {
+            $usuario = $resultado[0];
+            // Verificar la contraseña
+            if ($usuario->verificarClave($psw)) {
+                $_SESSION['idusuario'] = $usuario->getIdUsuario();
+                $resp = true;
+            } else {
+                $this->cerrar();
+            }
         } else {
             $this->cerrar();
         }
@@ -71,8 +97,10 @@ class Session {
      * Cierra la sesión actual.
      */
     public function cerrar() {
+        $resp = true;
         session_unset();
         session_destroy();
+        return $resp;
     }
 
 }
